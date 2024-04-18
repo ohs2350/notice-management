@@ -1,12 +1,10 @@
 package com.ohs.rms.controller;
 
 import com.ohs.rms.dto.request.NoticeCreateRequest;
+import com.ohs.rms.dto.request.NoticeUpdateRequest;
 import com.ohs.rms.service.NoticeService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -21,8 +19,15 @@ public class NoticeController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody NoticeCreateRequest noticeCreateRequest) {
+    public ResponseEntity<Void> create(@RequestBody final NoticeCreateRequest noticeCreateRequest) {
         Long id = noticeService.create(noticeCreateRequest);
         return ResponseEntity.created(URI.create("/notice/" + id)).build();
+    }
+
+    @PutMapping("/{noticeId}")
+    public ResponseEntity<Void> update(@RequestBody final NoticeUpdateRequest noticeUpdateRequest,
+                                       @PathVariable final Long noticeId) {
+        noticeService.update(noticeId, noticeUpdateRequest);
+        return ResponseEntity.ok().build();
     }
 }

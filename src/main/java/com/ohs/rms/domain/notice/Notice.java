@@ -49,4 +49,11 @@ public class Notice {
         this.hit = hit;
         this.del = del;
     }
+
+    public void update(String title, String content, LocalDateTime startAt, LocalDateTime endAt) {
+        this.title = title != null ? title : this.title;
+        this.content = content != null ? content : this.content;
+        this.startAt = startAt != null ? startAt : this.startAt;
+        this.endAt = endAt != null ? endAt : this.endAt;
+    }
 }
