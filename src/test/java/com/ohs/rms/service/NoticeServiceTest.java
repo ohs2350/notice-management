@@ -80,7 +80,8 @@ class NoticeServiceTest {
     }
 
     @Test
-    public void testUpdate_ValidNoticeId_ValidRequest_Success() {
+    @DisplayName("입력한 값으로 공지사항을 수정한다.")
+    public void update() {
         // given
         Long noticeId = 1L;
         NoticeUpdateRequest request = new NoticeUpdateRequest("test", "test", null, null);
@@ -102,7 +103,8 @@ class NoticeServiceTest {
     }
 
     @Test
-    public void testUpdate_InvalidNoticeId_ExceptionThrown() {
+    @DisplayName("올바르지 않은 id로 수정 요청 시 예외가 발생한다.")
+    public void updateWithInvalidNoticeId() {
         // given
         Long noticeId = 1L;
         NoticeUpdateRequest request = new NoticeUpdateRequest(null, null, null, null);
@@ -111,6 +113,38 @@ class NoticeServiceTest {
 
         // when, then
         assertThrows(NoSuchElementException.class, () -> noticeService.update(noticeId, request));
+        verify(noticeRepository, times(1)).findById(noticeId);
+    }
+
+    @Test
+    @DisplayName("삭제 시 del 필드를 1로 변경한다.")
+    public void delete() {
+        // given
+        Long noticeId = 1L;
+        Notice notice = createNotice();
+
+        given(noticeRepository.findById(anyLong())).willReturn(Optional.of(notice));
+
+        // when
+        noticeService.delete(noticeId);
+
+        // then
+        assertAll(
+                () -> assertEquals(notice.getDel(), 1),
+                () -> verify(noticeRepository, times(1)).findById(noticeId)
+        );
+    }
+
+    @Test
+    @DisplayName("올바르지 않은 id로 삭제 요청 시 예외가 발생한다.")
+    public void deleteWithInvalidNoticeId() {
+        // given
+        Long noticeId = 1L;
+
+        given(noticeRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        // when, then
+        assertThrows(NoSuchElementException.class, () -> noticeService.delete(noticeId));
         verify(noticeRepository, times(1)).findById(noticeId);
     }
 

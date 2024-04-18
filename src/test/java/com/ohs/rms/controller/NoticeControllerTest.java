@@ -13,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,8 +22,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -73,7 +73,7 @@ class NoticeControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                put("/notice/{noticeId}", 1)
+                patch("/notice/{noticeId}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
         );
@@ -82,5 +82,22 @@ class NoticeControllerTest {
         resultActions.andExpect(status().isOk())
                 .andDo(print());
         verify(noticeService).update(anyLong(), any(NoticeUpdateRequest.class));
+    }
+
+    @Test
+    @DisplayName("정상적인 입력값으로 삭제 요청 시 200코드를 반환한다.")
+    void delete() throws Exception {
+        // given
+        willDoNothing().given(noticeService).delete(anyLong());
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.delete("/notice/{noticeId}", 1)
+        );
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andDo(print());
+        verify(noticeService).delete(anyLong());
     }
 }
