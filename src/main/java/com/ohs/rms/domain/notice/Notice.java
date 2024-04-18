@@ -56,4 +56,8 @@ public class Notice {
         this.startAt = startAt != null ? startAt : this.startAt;
         this.endAt = endAt != null ? endAt : this.endAt;
     }
+
+    public void delete() {
+        this.del = 1;
+    }
 }

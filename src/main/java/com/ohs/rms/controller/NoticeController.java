@@ -24,10 +24,16 @@ public class NoticeController {
         return ResponseEntity.created(URI.create("/notice/" + id)).build();
     }
 
-    @PutMapping("/{noticeId}")
+    @PatchMapping("/{noticeId}")
     public ResponseEntity<Void> update(@RequestBody final NoticeUpdateRequest noticeUpdateRequest,
                                        @PathVariable final Long noticeId) {
         noticeService.update(noticeId, noticeUpdateRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{noticeId}")
+    public ResponseEntity<Void> delete(@PathVariable final Long noticeId) {
+        noticeService.delete(noticeId);
         return ResponseEntity.ok().build();
     }
 }

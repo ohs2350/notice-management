@@ -41,4 +41,11 @@ public class NoticeService {
                 .orElseThrow();
         notice.update(request.getTitle(), request.getContent(), request.getStartAt(), request.getEndAt());
     }
+
+    @Transactional
+    public void delete(Long noticeId) {
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow();
+        notice.delete();
+    }
 }
