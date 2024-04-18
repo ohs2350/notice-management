@@ -3,6 +3,7 @@ package com.ohs.rms.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ohs.rms.dto.request.NoticeCreateRequest;
+import com.ohs.rms.dto.request.NoticeUpdateRequest;
 import com.ohs.rms.service.NoticeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,12 @@ import org.springframework.test.web.servlet.ResultActions;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,7 +44,7 @@ class NoticeControllerTest {
     }
 
     @Test
-    @DisplayName("정상적인 입력값으로 요청 시 공지 생성에 성공하며 201코드를 반환한다.")
+    @DisplayName("정상적인 입력값으로 생성 요청 시 201코드를 반환한다.")
     void create() throws Exception {
         // given
         NoticeCreateRequest noticeCreateRequest = new NoticeCreateRequest(null, null, null, null, null);
@@ -58,5 +62,25 @@ class NoticeControllerTest {
                 .andExpect(header().string("Location", is("/notice/" + 1L)))
                 .andDo(print());
         verify(noticeService).create(any(NoticeCreateRequest.class));
+    }
+
+    @Test
+    @DisplayName("정상적인 입력값으로 수정 요청 시 200코드를 반환한다.")
+    void update() throws Exception {
+        // given
+        NoticeUpdateRequest request = new NoticeUpdateRequest(null, null, null, null);
+        willDoNothing().given(noticeService).update(anyLong(), any(NoticeUpdateRequest.class));
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                put("/notice/{noticeId}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andDo(print());
+        verify(noticeService).update(anyLong(), any(NoticeUpdateRequest.class));
     }
 }

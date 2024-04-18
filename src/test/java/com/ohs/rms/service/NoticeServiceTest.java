@@ -6,6 +6,7 @@ import com.ohs.rms.domain.notice.NoticeFileRepository;
 import com.ohs.rms.domain.notice.NoticeRepository;
 import com.ohs.rms.dto.request.NoticeCreateRequest;
 import com.ohs.rms.dto.request.NoticeFileRequest;
+import com.ohs.rms.dto.request.NoticeUpdateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,14 +15,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class NoticeServiceTest {
@@ -75,6 +77,41 @@ class NoticeServiceTest {
                 () -> verify(noticeRepository, times(1)).save(any(Notice.class)),
                 () -> verify(noticeFileRepository, times(1)).save(any(NoticeFile.class))
         );
+    }
+
+    @Test
+    public void testUpdate_ValidNoticeId_ValidRequest_Success() {
+        // given
+        Long noticeId = 1L;
+        NoticeUpdateRequest request = new NoticeUpdateRequest("test", "test", null, null);
+        Notice notice = createNotice();
+
+        given(noticeRepository.findById(anyLong())).willReturn(Optional.of(notice));
+
+        // when
+        noticeService.update(noticeId, request);
+
+        // then
+        assertAll(
+                () -> assertEquals(request.getTitle(), notice.getTitle()),
+                () -> assertEquals(request.getContent(), notice.getContent()),
+                () -> assertEquals(request.getStartAt(), notice.getStartAt()),
+                () -> assertEquals(request.getEndAt(), notice.getEndAt()),
+                () -> verify(noticeRepository, times(1)).findById(noticeId)
+        );
+    }
+
+    @Test
+    public void testUpdate_InvalidNoticeId_ExceptionThrown() {
+        // given
+        Long noticeId = 1L;
+        NoticeUpdateRequest request = new NoticeUpdateRequest(null, null, null, null);
+
+        given(noticeRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        // when, then
+        assertThrows(NoSuchElementException.class, () -> noticeService.update(noticeId, request));
+        verify(noticeRepository, times(1)).findById(noticeId);
     }
 
     private Notice createNotice() {
