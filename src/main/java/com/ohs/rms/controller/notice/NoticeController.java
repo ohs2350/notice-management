@@ -1,5 +1,7 @@
-package com.ohs.rms.controller;
+package com.ohs.rms.controller.notice;
 
+import com.ohs.rms.controller.auth.Admin;
+import com.ohs.rms.controller.auth.AdminId;
 import com.ohs.rms.dto.request.NoticeCreateRequest;
 import com.ohs.rms.dto.request.NoticeUpdateRequest;
 import com.ohs.rms.dto.response.NoticeReadResponse;
@@ -22,8 +24,9 @@ public class NoticeController {
 
     @Admin
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody @Valid final NoticeCreateRequest noticeCreateRequest) {
-        Long id = noticeService.create(noticeCreateRequest);
+    public ResponseEntity<Void> create(@RequestBody @Valid final NoticeCreateRequest noticeCreateRequest,
+                                       @AdminId Long adminId) {
+        Long id = noticeService.create(noticeCreateRequest, adminId);
         return ResponseEntity.created(URI.create("/notice/" + id)).build();
     }
 
@@ -32,16 +35,20 @@ public class NoticeController {
         return noticeService.read(noticeId);
     }
 
+    @Admin
     @PatchMapping("/{noticeId}")
     public ResponseEntity<Void> update(@RequestBody @Valid final NoticeUpdateRequest noticeUpdateRequest,
-                                       @PathVariable final Long noticeId) {
-        noticeService.update(noticeId, noticeUpdateRequest);
+                                       @PathVariable final Long noticeId,
+                                       @AdminId Long adminId) {
+        noticeService.update(noticeId, noticeUpdateRequest, adminId);
         return ResponseEntity.ok().build();
     }
 
+    @Admin
     @DeleteMapping("/{noticeId}")
-    public ResponseEntity<Void> delete(@PathVariable final Long noticeId) {
-        noticeService.delete(noticeId);
+    public ResponseEntity<Void> delete(@PathVariable final Long noticeId,
+                                       @AdminId Long adminId) {
+        noticeService.delete(noticeId, adminId);
         return ResponseEntity.ok().build();
     }
 }

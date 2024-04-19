@@ -1,5 +1,6 @@
 package com.ohs.rms.controller;
 
+import com.ohs.rms.exception.NotAuthorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,4 +18,12 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    @ExceptionHandler(NotAuthorException.class)
+    public ResponseEntity<Void> handleNotAuthorException(NotAuthorException e) {
+        log.error(e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+
 }

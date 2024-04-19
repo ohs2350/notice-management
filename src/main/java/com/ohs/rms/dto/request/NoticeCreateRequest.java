@@ -1,6 +1,7 @@
 package com.ohs.rms.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ohs.rms.domain.admin.Admin;
 import com.ohs.rms.domain.notice.Notice;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -38,7 +39,7 @@ public class NoticeCreateRequest {
         this.noticeFileRequests = noticeFileRequests!=null ? noticeFileRequests : new ArrayList<>();
     }
 
-    public Notice toNotice() {
+    public Notice toNotice(Admin admin) {
         return Notice.builder()
                 .title(title)
                 .content(content)
@@ -47,6 +48,7 @@ public class NoticeCreateRequest {
                 .endAt(endAt)
                 .hit(0)
                 .del(0)
+                .admin(admin)
                 .build();
     }
 }

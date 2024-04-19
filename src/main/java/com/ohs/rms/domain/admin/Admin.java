@@ -22,4 +22,9 @@ public class Admin {
     public Admin(String name) {
         this.name = name;
     }
+
+    public Admin(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }
