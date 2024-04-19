@@ -20,6 +20,7 @@ public class NoticeController {
         this.noticeService = noticeService;
     }
 
+    @Admin
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody @Valid final NoticeCreateRequest noticeCreateRequest) {
         Long id = noticeService.create(noticeCreateRequest);
