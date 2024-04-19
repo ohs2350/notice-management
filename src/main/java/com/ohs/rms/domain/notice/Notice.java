@@ -1,5 +1,6 @@
 package com.ohs.rms.domain.notice;
 
+import com.ohs.rms.domain.admin.Admin;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,10 +37,14 @@ public class Notice {
 
     private int del;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
+
     protected Notice() {
     }
 
-    private Notice(Long id, String title, String content, LocalDateTime createdAt, LocalDateTime startAt, LocalDateTime endAt, int hit, int del) {
+    public Notice(Long id, String title, String content, LocalDateTime createdAt, LocalDateTime startAt, LocalDateTime endAt, int hit, int del, Admin admin) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -48,6 +53,11 @@ public class Notice {
         this.endAt = endAt;
         this.hit = hit;
         this.del = del;
+        this.admin = admin;
+    }
+
+    public void read() {
+        this.hit += 1;
     }
 
     public void update(String title, String content, LocalDateTime startAt, LocalDateTime endAt) {
