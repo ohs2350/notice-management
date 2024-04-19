@@ -4,6 +4,7 @@ package com.ohs.rms.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ohs.rms.dto.request.NoticeCreateRequest;
 import com.ohs.rms.dto.request.NoticeUpdateRequest;
+import com.ohs.rms.dto.response.NoticeReadResponse;
 import com.ohs.rms.service.NoticeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,6 +63,23 @@ class NoticeControllerTest {
                 .andExpect(header().string("Location", is("/notice/" + 1L)))
                 .andDo(print());
         verify(noticeService).create(any(NoticeCreateRequest.class));
+    }
+
+    @Test
+    @DisplayName("정상적인 입력값으로 조회 시 공지사항을 반환한다.")
+    void read() throws Exception {
+        // given
+        given(noticeService.read(anyLong())).willReturn(any(NoticeReadResponse.class));
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                get("/notice/{noticeId}", 1)
+        );
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andDo(print());
+        verify(noticeService).read(anyLong());
     }
 
     @Test

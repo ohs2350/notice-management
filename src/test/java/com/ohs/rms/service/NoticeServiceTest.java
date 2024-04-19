@@ -1,5 +1,6 @@
 package com.ohs.rms.service;
 
+import com.ohs.rms.domain.admin.Admin;
 import com.ohs.rms.domain.notice.Notice;
 import com.ohs.rms.domain.notice.NoticeFile;
 import com.ohs.rms.domain.notice.NoticeFileRepository;
@@ -7,6 +8,7 @@ import com.ohs.rms.domain.notice.NoticeRepository;
 import com.ohs.rms.dto.request.NoticeCreateRequest;
 import com.ohs.rms.dto.request.NoticeFileRequest;
 import com.ohs.rms.dto.request.NoticeUpdateRequest;
+import com.ohs.rms.dto.response.NoticeReadResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,6 +79,39 @@ class NoticeServiceTest {
                 () -> verify(noticeRepository, times(1)).save(any(Notice.class)),
                 () -> verify(noticeFileRepository, times(1)).save(any(NoticeFile.class))
         );
+    }
+
+    @Test
+    @DisplayName("선택한 id의 공지사항을 조회한다.")
+    public void read() {
+        // given
+        Long noticeId = 1L;
+        Notice notice = createNotice();
+
+        given(noticeRepository.findById(anyLong())).willReturn(Optional.of(notice));
+
+        // when
+        NoticeReadResponse response = noticeService.read(noticeId);
+
+        // then
+        assertAll(
+                () -> assertEquals(notice.getHit(), response.getHit()),
+                () -> assertEquals(notice.getTitle(), response.getTitle()),
+                () -> verify(noticeRepository, times(1)).findById(noticeId)
+        );
+    }
+
+    @Test
+    @DisplayName("올바르지 않은 id로 조회 시 예외가 발생한다.")
+    public void readWithInvalidNoticeId() {
+        // given
+        Long noticeId = 1L;
+
+        given(noticeRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        // when, then
+        assertThrows(NoSuchElementException.class, () -> noticeService.read(noticeId));
+        verify(noticeRepository, times(1)).findById(noticeId);
     }
 
     @Test
@@ -151,6 +186,8 @@ class NoticeServiceTest {
     private Notice createNotice() {
         return Notice.builder()
                 .id(1L)
+                .hit(0)
+                .admin(new Admin("test"))
                 .build();
     }
 

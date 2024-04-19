@@ -6,6 +6,7 @@ import com.ohs.rms.domain.notice.NoticeRepository;
 import com.ohs.rms.dto.request.NoticeCreateRequest;
 import com.ohs.rms.dto.request.NoticeFileRequest;
 import com.ohs.rms.dto.request.NoticeUpdateRequest;
+import com.ohs.rms.dto.response.NoticeReadResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,14 @@ public class NoticeService {
         }
 
         return notice.getId();
+    }
+
+    @Transactional
+    public NoticeReadResponse read(Long noticeId) {
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow();
+        notice.read();
+        return NoticeReadResponse.from(notice);
     }
 
     @Transactional
