@@ -1,6 +1,7 @@
 package com.ohs.rms.service;
 
 import com.ohs.rms.domain.admin.Admin;
+import com.ohs.rms.domain.admin.AdminRepository;
 import com.ohs.rms.domain.notice.Notice;
 import com.ohs.rms.domain.notice.NoticeFile;
 import com.ohs.rms.domain.notice.NoticeFileRepository;
@@ -39,16 +40,22 @@ class NoticeServiceTest {
     @Mock
     private NoticeFileRepository noticeFileRepository;
 
+    @Mock
+    private AdminRepository adminRepository;
+
     @Test
     @DisplayName("첨부파일 없이 요청 시 공지사항만 저장한다.")
     void create() {
         // given
         NoticeCreateRequest request = new NoticeCreateRequest(null, null, null, null, null);
         Notice notice = createNotice();
+        Admin admin = createAdmin();
+
+        given(adminRepository.findById(anyLong())).willReturn(Optional.of(admin));
         given(noticeRepository.save(any(Notice.class))).willReturn(notice);
 
         // then
-        Long noticeId = noticeService.create(request);
+        Long noticeId = noticeService.create(request, 1L);
 
         // when
         assertAll(
@@ -66,11 +73,14 @@ class NoticeServiceTest {
         NoticeCreateRequest request = new NoticeCreateRequest(null, null, null, null, List.of(fileRequest));
         Notice notice = createNotice();
         NoticeFile noticeFile = createNoticeFile();
+        Admin admin = createAdmin();
+
+        given(adminRepository.findById(anyLong())).willReturn(Optional.of(admin));
         given(noticeRepository.save(any(Notice.class))).willReturn(notice);
         given(noticeFileRepository.save(any(NoticeFile.class))).willReturn(noticeFile);
 
         // then
-        Long noticeId = noticeService.create(request);
+        Long noticeId = noticeService.create(request, 1L);
 
         // when
         assertAll(
@@ -125,7 +135,7 @@ class NoticeServiceTest {
         given(noticeRepository.findById(anyLong())).willReturn(Optional.of(notice));
 
         // when
-        noticeService.update(noticeId, request);
+        noticeService.update(noticeId, request, 1L);
 
         // then
         assertAll(
@@ -147,7 +157,7 @@ class NoticeServiceTest {
         given(noticeRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // when, then
-        assertThrows(NoSuchElementException.class, () -> noticeService.update(noticeId, request));
+        assertThrows(NoSuchElementException.class, () -> noticeService.update(noticeId, request, 1L));
         verify(noticeRepository, times(1)).findById(noticeId);
     }
 
@@ -161,7 +171,7 @@ class NoticeServiceTest {
         given(noticeRepository.findById(anyLong())).willReturn(Optional.of(notice));
 
         // when
-        noticeService.delete(noticeId);
+        noticeService.delete(noticeId, 1L);
 
         // then
         assertAll(
@@ -179,7 +189,7 @@ class NoticeServiceTest {
         given(noticeRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // when, then
-        assertThrows(NoSuchElementException.class, () -> noticeService.delete(noticeId));
+        assertThrows(NoSuchElementException.class, () -> noticeService.delete(noticeId, 1L));
         verify(noticeRepository, times(1)).findById(noticeId);
     }
 
@@ -187,7 +197,7 @@ class NoticeServiceTest {
         return Notice.builder()
                 .id(1L)
                 .hit(0)
-                .admin(new Admin("test"))
+                .admin(createAdmin())
                 .build();
     }
 
@@ -195,5 +205,9 @@ class NoticeServiceTest {
         return NoticeFile.builder()
                 .id(1L)
                 .build();
+    }
+
+    private Admin createAdmin() {
+        return new Admin(1L, "test");
     }
 }

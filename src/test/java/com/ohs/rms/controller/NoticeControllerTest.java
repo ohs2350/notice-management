@@ -4,6 +4,7 @@ package com.ohs.rms.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ohs.rms.controller.notice.NoticeController;
 import com.ohs.rms.dto.request.NoticeCreateRequest;
 import com.ohs.rms.dto.request.NoticeUpdateRequest;
 import com.ohs.rms.dto.response.NoticeReadResponse;
@@ -22,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.*;
@@ -56,7 +56,7 @@ class NoticeControllerTest {
     void create() throws Exception {
         // given
         NoticeCreateRequest noticeCreateRequest = new NoticeCreateRequest("test", "test", LocalDateTime.now(), LocalDateTime.now(), null);
-        given(noticeService.create(any(NoticeCreateRequest.class))).willReturn(1L);
+        given(noticeService.create(any(NoticeCreateRequest.class), anyLong())).willReturn(1L);
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -69,7 +69,7 @@ class NoticeControllerTest {
         resultActions.andExpect(status().isCreated())
                 .andExpect(header().string("Location", is("/notice/" + 1L)))
                 .andDo(print());
-        verify(noticeService).create(any(NoticeCreateRequest.class));
+        verify(noticeService).create(any(NoticeCreateRequest.class), anyLong());
     }
 
     @Test
@@ -77,7 +77,7 @@ class NoticeControllerTest {
     void createWithInvalidRequest() throws Exception {
         // given
         NoticeCreateRequest noticeCreateRequest = new NoticeCreateRequest(null, null, null, null, null);
-        given(noticeService.create(any(NoticeCreateRequest.class))).willReturn(1L);
+        given(noticeService.create(any(NoticeCreateRequest.class), anyLong())).willReturn(1L);
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -89,7 +89,7 @@ class NoticeControllerTest {
         // then
         resultActions.andExpect(status().isBadRequest())
                 .andDo(print());
-        verify(noticeService, never()).create(any(NoticeCreateRequest.class));
+        verify(noticeService, never()).create(any(NoticeCreateRequest.class), anyLong());
     }
 
     @Test
@@ -130,7 +130,7 @@ class NoticeControllerTest {
     void update() throws Exception {
         // given
         NoticeUpdateRequest request = new NoticeUpdateRequest("test", "test", LocalDateTime.now(), LocalDateTime.now());
-        willDoNothing().given(noticeService).update(anyLong(), any(NoticeUpdateRequest.class));
+        willDoNothing().given(noticeService).update(anyLong(), any(NoticeUpdateRequest.class), anyLong());
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -142,7 +142,7 @@ class NoticeControllerTest {
         // then
         resultActions.andExpect(status().isOk())
                 .andDo(print());
-        verify(noticeService).update(anyLong(), any(NoticeUpdateRequest.class));
+        verify(noticeService).update(anyLong(), any(NoticeUpdateRequest.class), anyLong());
     }
 
     @Test
@@ -150,7 +150,7 @@ class NoticeControllerTest {
     void updateWithInvalidRequest() throws Exception {
         // given
         NoticeUpdateRequest request = new NoticeUpdateRequest(null, null, null, null);
-        willDoNothing().given(noticeService).update(anyLong(), any(NoticeUpdateRequest.class));
+        willDoNothing().given(noticeService).update(anyLong(), any(NoticeUpdateRequest.class), anyLong());
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -162,7 +162,7 @@ class NoticeControllerTest {
         // then
         resultActions.andExpect(status().isBadRequest())
                 .andDo(print());
-        verify(noticeService, never()).update(anyLong(), any(NoticeUpdateRequest.class));
+        verify(noticeService, never()).update(anyLong(), any(NoticeUpdateRequest.class), anyLong());
     }
 
     @Test
@@ -170,7 +170,7 @@ class NoticeControllerTest {
     void updateWithInvalidNoticeId() throws Exception {
         // given
         NoticeUpdateRequest request = new NoticeUpdateRequest("test", "test", LocalDateTime.now(), LocalDateTime.now());
-        willThrow(new NoSuchElementException()).given(noticeService).update(anyLong(), any(NoticeUpdateRequest.class));
+        willThrow(new NoSuchElementException()).given(noticeService).update(anyLong(), any(NoticeUpdateRequest.class), anyLong());
 
 
         // when
@@ -189,7 +189,7 @@ class NoticeControllerTest {
     @DisplayName("정상적인 입력값으로 삭제 요청 시 200코드를 반환한다.")
     void delete() throws Exception {
         // given
-        willDoNothing().given(noticeService).delete(anyLong());
+        willDoNothing().given(noticeService).delete(anyLong(), anyLong());
 
         // when
         ResultActions resultActions = mockMvc.perform(
@@ -199,14 +199,14 @@ class NoticeControllerTest {
         // then
         resultActions.andExpect(status().isOk())
                 .andDo(print());
-        verify(noticeService).delete(anyLong());
+        verify(noticeService).delete(anyLong(), anyLong());
     }
 
     @Test
     @DisplayName("잘못된 id로 삭제 요청 시 실패 및 404코드를 반환한다.")
     void deleteWithInvalidNoticeId() throws Exception {
         // given
-        willThrow(new NoSuchElementException()).given(noticeService).delete(anyLong());
+        willThrow(new NoSuchElementException()).given(noticeService).delete(anyLong(), anyLong());
 
         // when
         ResultActions resultActions = mockMvc.perform(
