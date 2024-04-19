@@ -4,6 +4,7 @@ import com.ohs.rms.dto.request.NoticeCreateRequest;
 import com.ohs.rms.dto.request.NoticeUpdateRequest;
 import com.ohs.rms.dto.response.NoticeReadResponse;
 import com.ohs.rms.service.NoticeService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class NoticeController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody final NoticeCreateRequest noticeCreateRequest) {
+    public ResponseEntity<Void> create(@RequestBody @Valid final NoticeCreateRequest noticeCreateRequest) {
         Long id = noticeService.create(noticeCreateRequest);
         return ResponseEntity.created(URI.create("/notice/" + id)).build();
     }
@@ -31,7 +32,7 @@ public class NoticeController {
     }
 
     @PatchMapping("/{noticeId}")
-    public ResponseEntity<Void> update(@RequestBody final NoticeUpdateRequest noticeUpdateRequest,
+    public ResponseEntity<Void> update(@RequestBody @Valid final NoticeUpdateRequest noticeUpdateRequest,
                                        @PathVariable final Long noticeId) {
         noticeService.update(noticeId, noticeUpdateRequest);
         return ResponseEntity.ok().build();
