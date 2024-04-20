@@ -110,6 +110,22 @@ class NoticeControllerTest {
     }
 
     @Test
+    @DisplayName("삭제된 id로 조회 시 요청 실패 및 400코드를 반환한다.")
+    void readWithDeletedNoticeId() throws Exception {
+        // given
+        given(noticeService.read(anyLong())).willThrow(new IllegalArgumentException());
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                get("/notice/{noticeId}", 1)
+        );
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
     @DisplayName("잘못된 id로 조회 시 요청 실패 및 404코드를 반환한다.")
     void readWithInvalidNoticeId() throws Exception {
         // given

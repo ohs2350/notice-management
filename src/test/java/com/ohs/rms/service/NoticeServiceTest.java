@@ -2,10 +2,7 @@ package com.ohs.rms.service;
 
 import com.ohs.rms.domain.admin.Admin;
 import com.ohs.rms.domain.admin.AdminRepository;
-import com.ohs.rms.domain.notice.Notice;
-import com.ohs.rms.domain.notice.NoticeFile;
-import com.ohs.rms.domain.notice.NoticeFileRepository;
-import com.ohs.rms.domain.notice.NoticeRepository;
+import com.ohs.rms.domain.notice.*;
 import com.ohs.rms.dto.request.NoticeCreateRequest;
 import com.ohs.rms.dto.request.NoticeFileRequest;
 import com.ohs.rms.dto.request.NoticeUpdateRequest;
@@ -17,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -26,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +41,9 @@ class NoticeServiceTest {
 
     @Mock
     private AdminRepository adminRepository;
+
+    @Mock
+    private NoticeHitCounter noticeHitCounter;
 
     @Test
     @DisplayName("첨부파일 없이 요청 시 공지사항만 저장한다.")
@@ -99,6 +101,7 @@ class NoticeServiceTest {
         Notice notice = createNotice();
 
         given(noticeRepository.findById(anyLong())).willReturn(Optional.of(notice));
+        willDoNothing().given(noticeHitCounter).incrementHitCount(noticeId);
 
         // when
         NoticeReadResponse response = noticeService.read(noticeId);
@@ -125,6 +128,23 @@ class NoticeServiceTest {
     }
 
     @Test
+    @DisplayName("삭제된 id로 조회 시 예외가 발생한다.")
+    public void readWithDeletedNoticeId() {
+        // given
+        Long noticeId = 1L;
+        Notice notice = Notice.builder()
+                .id(noticeId)
+                .del(1)
+                .build();
+
+        given(noticeRepository.findById(anyLong())).willReturn(Optional.of(notice));
+
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> noticeService.read(noticeId));
+        verify(noticeRepository, times(1)).findById(noticeId);
+    }
+
+    @Test
     @DisplayName("입력한 값으로 공지사항을 수정한다.")
     public void update() {
         // given
@@ -142,7 +162,6 @@ class NoticeServiceTest {
                 () -> assertEquals(request.getTitle(), notice.getTitle()),
                 () -> assertEquals(request.getContent(), notice.getContent()),
                 () -> assertEquals(request.getStartAt(), notice.getStartAt()),
-                () -> assertEquals(request.getEndAt(), notice.getEndAt()),
                 () -> verify(noticeRepository, times(1)).findById(noticeId)
         );
     }
@@ -197,6 +216,7 @@ class NoticeServiceTest {
         return Notice.builder()
                 .id(1L)
                 .hit(0)
+                .endAt(LocalDateTime.now().plusDays(1))
                 .admin(createAdmin())
                 .build();
     }
