@@ -56,18 +56,24 @@ public class Notice {
         this.admin = admin;
     }
 
-    public void read() {
+    public void incrementHit() {
         this.hit += 1;
     }
 
     public void update(String title, String content, LocalDateTime startAt, LocalDateTime endAt) {
-        this.title = title != null ? title : this.title;
-        this.content = content != null ? content : this.content;
-        this.startAt = startAt != null ? startAt : this.startAt;
-        this.endAt = endAt != null ? endAt : this.endAt;
+        this.title = title;
+        this.content = content;
+        this.startAt = startAt;
+        this.endAt = endAt;
     }
 
     public void delete() {
         this.del = 1;
+    }
+
+    public void checkDeleted() {
+        if (this.del == 1) {
+            throw new IllegalArgumentException("삭제된 게시글입니다.");
+        }
     }
 }
