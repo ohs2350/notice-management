@@ -1,8 +1,8 @@
 package com.ohs.rms.exception;
 
-public class NotAuthorException extends RuntimeException {
+public class InvalidAuthorException extends RuntimeException {
 
-    public NotAuthorException() {
+    public InvalidAuthorException() {
         super("권한이 없습니다.");
     }
 }
